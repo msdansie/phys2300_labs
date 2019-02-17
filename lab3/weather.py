@@ -39,13 +39,30 @@ def parse_data(infile):
     """
     Function to parse weather data
     :param infile: weather data input file
-    :return: two lists. One list with the information from the third column (date)
+    :return: three lists. One list with the information from the third column (date)
+                        One list with only the years of the dates
                         One list with the information from the fourth column (temperature)
     """
+    wyear = []
     wdates = []             # list of dates data
     wtemperatures = []      # list of temperarture data
+    wrecords = []
 
-    return wdates, wtemperatures
+    with open(infile, mode='r') as file:
+        
+        file.readline()
+
+        for rec in file:
+            wrecords.append(rec.split())
+
+    for row in wrecords:
+        wdates.append(row[2])
+        wtemperatures.append(float(row[3]))
+        
+        if row[2][0:4] not in wyear:
+            wyear.append(float(row[2][0:4]))
+    
+    return wdates, wtemperatures, wyear
 
 
 def calc_mean_std_dev(wdates, wtemp):
@@ -56,8 +73,30 @@ def calc_mean_std_dev(wdates, wtemp):
     :param wtemp: temperature per month
     :return: means, std_dev: months_mean and std_dev lists
     """
+    month = 1
     means = []
     std_dev = []
+
+    while(month <= 12):
+        sum = 0.0
+        month_temps = []
+        
+
+        if(month < 10):
+            check_month = "0" + str(month)
+        else:
+            check_month = str(month)
+        
+        for index, date in enumerate(wdates):
+            if(date[4:6] == check_month):
+                
+                sum = sum + wtemp[index]
+                month_temps.append(wtemp[index])
+        
+        means.append(sum / len(month_temps))
+        std_dev.append(np.std(month_temps))
+        
+        month = month + 1
 
     return means, std_dev
 
@@ -105,12 +144,12 @@ def plot_data_task2(xxx):
 
 def main(infile):
     weather_data = infile    # take data file as input parameter to file
-    wdates, wtemperatures = parse_data(weather_data)
+    wdates, wtemperatures, wyear = parse_data(weather_data)
     # Calculate mean and standard dev per month
     month_mean, month_std = calc_mean_std_dev(wdates, wtemperatures)
     # TODO: Make sure you have a list of:
     #       1) years, 2) temperature, 3) month_mean, 4) month_std
-    plot_data_task1(wyear, wtemp, month_mean, month_std)
+    plot_data_task1(wyear, wtemperatures, month_mean, month_std)
     # TODO: Create the data you need for this
     # plot_data_task2(xxx)
 
@@ -119,6 +158,6 @@ def main(infile):
 if __name__ == "__main__":
     # infile = 'data/CDO6674605799016.txt'  # for testing
     # Note: the 0th argument is the program itself.
-    infile = sys.argv[1]
-    main(infile)
-    exit(0)
+    #'data/CDO6674605799016.txt' = sys.argv[0]
+    main("data/CDO6674605799016.txt")
+    #exit(0)
