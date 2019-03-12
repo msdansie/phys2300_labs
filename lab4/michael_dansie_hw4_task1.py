@@ -1,11 +1,15 @@
 '''
-Assignment to learn how to interpolate data1
+Michael Dansie
+PHYS 2300
+Lab 4
+3/11/2019
+Assignment to learn how to interpolate data
 '''
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-# import scipy
 import pandas as pd
+
 def read_wx_data(wx_file, harbor_data):
     """
     Read temperature and time data from file.
@@ -20,6 +24,11 @@ def read_wx_data(wx_file, harbor_data):
 
     for index, row in wx_data.iterrows():#start the time at 0hrs
         wx_data.at[index, 'Time'] = float_time(wx_data.at[index, 'Time']) - start_time
+
+        #replace garbage data and interpolate the missing value
+        if index != 0 and index < len(wx_data['Ch1:Deg F']) - 1:
+            if abs(wx_data.at[index, 'Ch1:Deg F']) < abs(wx_data.at[index + 1, 'Ch1:Deg F'])/3:
+                wx_data.at[index, 'Ch1:Deg F'] = (wx_data.at[index-1, 'Ch1:Deg F'] + wx_data.at[index+1, 'Ch1:Deg F']) / 2
 
     #add the data to the dictionary
     harbor_data['wx_time'] = wx_data['Time']
@@ -103,9 +112,6 @@ def interpolate_wx_from_gps(harbor_data):
     harbor_data['alt_up'] = np.linspace(harbor_data['alt_up'].iloc[0], harbor_data['alt_up'].iloc[-1], len(harbor_data['temp_up']))
     harbor_data['alt_down'] = np.linspace(harbor_data['alt_down'].iloc[0], harbor_data['alt_down'].iloc[-1], len(harbor_data['temp_down']))
 
-    
-
-
 def plot_figs(harbor_data):
     """
     Plot 2 figures with 2 subplots each.
@@ -117,7 +123,7 @@ def plot_figs(harbor_data):
     plt.figure()
     plt.subplot(2, 1, 1)                
     plt.title("Harbor Flight Data")
-    plt.plot(list(harbor_data['wx_time']), list(harbor_data['wx_temp']))
+    plt.plot(harbor_data['wx_time'], harbor_data['wx_temp'])
     plt.ylabel("Temperature, F")
     
     #altitude vs time
@@ -149,8 +155,10 @@ def main():
     :return: Nothing
     """
     harbor_data = {}
-    wx_file = sys.argv[1]                   # first program input param
-    gps_file = sys.argv[2]                  # second program input param
+    wx_file = "TempPressure.Txt"
+    gps_file = "GPSData.Txt"
+    #wx_file = sys.argv[1]                   # first program input param
+    #gps_file = sys.argv[2]                  # second program input param
 
     read_wx_data(wx_file, harbor_data)      # collect weather data
     read_gps_data(gps_file, harbor_data)    # collect gps data
