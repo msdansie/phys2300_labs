@@ -155,10 +155,9 @@ def main():
     :return: Nothing
     """
     harbor_data = {}
-    wx_file = "TempPressure.Txt"
-    gps_file = "GPSData.Txt"
-    #wx_file = sys.argv[1]                   # first program input param
-    #gps_file = sys.argv[2]                  # second program input param
+    
+    wx_file = sys.argv[1]                   # first program input param
+    gps_file = sys.argv[2]                  # second program input param
 
     read_wx_data(wx_file, harbor_data)      # collect weather data
     read_gps_data(gps_file, harbor_data)    # collect gps data
