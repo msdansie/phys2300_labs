@@ -1,4 +1,4 @@
-from vpython import *
+#from vpython import *
 from math import cos, sin, radians
 import argparse
 from matplotlib import pyplot as plt
